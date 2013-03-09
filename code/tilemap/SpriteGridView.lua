@@ -33,14 +33,14 @@ function SpriteGridView:new(spriteGrid, tileWidth, tileHeight)
 	end
 
 	function view:createSprite(spriteVO)
-		local rect = display.newRect(0, 0, tileWidth - 2, tileHeight - 2)
+		local rect = display.newRect(0, 0, tileWidth, tileHeight)
 		rect.spriteVO = spriteVO
 		rect:setFillColor(210, 210, 210, 200)
 		rect:setStrokeColor(50, 50, 50)
 		rect.strokeWidth = 1
 		self:insert(rect)
-		rect.x = spriteVO.currentCol * self.tileWidth
-		rect.y = spriteVO.currentRow * self.tileHeight
+		rect.x = spriteVO.currentCol * self.tileWidth - rect.width / 2
+		rect.y = spriteVO.currentRow * self.tileHeight - rect.height / 2
 		return rect
 	end
 
@@ -61,8 +61,8 @@ function SpriteGridView:new(spriteGrid, tileWidth, tileHeight)
 	function view:onAdded(event)
 		local spriteVO = event.sprite
 		local sprite = self:createSprite(spriteVO)
-		sprite.x = spriteVO.currentCol * self.tileWidth
-		sprite.y = spriteVO.currentRow * self.tileHeight
+		sprite.x = spriteVO.currentCol * self.tileWidth - sprite.width / 2
+		sprite.y = spriteVO.currentRow * self.tileHeight - sprite.height / 2
 	end
 
 	function view:onRemoved(event)
@@ -80,9 +80,10 @@ function SpriteGridView:new(spriteGrid, tileWidth, tileHeight)
 			sprite.tweenID = nil
 		end
 		
-		local targetX = event.col * self.tileWidth
-		local targetY = event.row * self.tileHeight
+		local targetX = event.col * self.tileWidth - sprite.width / 2
+		local targetY = event.row * self.tileHeight - sprite.height / 2
 		sprite.tweenID = transition.to(sprite, {x=targetX, y=targetY, time=500})
+		self.lastSprite = sprite
 	end
 
 	view:init(spriteGrid, tileWidth, tileHeight)

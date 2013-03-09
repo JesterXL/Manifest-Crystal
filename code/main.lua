@@ -55,6 +55,8 @@ local function testSpriteGridView()
 	require "tilemap.SpriteGrid"
 	require "tilemap.SpriteVO"
 	require "tilemap.SpriteGridView"
+	require "tilemap.DebugGridView"
+	require "tilemap.TileTypes"
 	local grid = Grid:new(10, 10, 0)
 	local jxl = SpriteVO:new()
 	local cow = SpriteVO:new()
@@ -63,6 +65,12 @@ local function testSpriteGridView()
 	local spriteGridView = SpriteGridView:new(spriteGrid, 16, 16)
 	spriteGridView.x = 30
 	spriteGridView.y = 30
+
+	local mapGrid = Grid:new(10, 10, 0)
+	mapGrid:setTile(3, 3, TileTypes.IMPASSABLE)
+	local debugGridView = DebugGridView:new(mapGrid, 16, 16)
+	debugGridView.x = 30
+	debugGridView.y = 30
 
 	local t = {}
 	function t:timer(e)
