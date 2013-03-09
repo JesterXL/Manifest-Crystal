@@ -1,3 +1,16 @@
+display.setStatusBar( display.HiddenStatusBar )
+
+local function setupGlobals()
+	require "utils.GameLoop"
+	_G.gameLoop = GameLoop:new()
+	gameLoop:start()
+
+	_G.mainGroup = display.newGroup()
+	mainGroup.classType = "mainGroup"
+	_G.stage = display.getCurrentStage()
+
+	--_G._ = require "utils.underscore"
+end
 
 local function testGrid()
 	require "tilemap.Grid"
@@ -57,21 +70,28 @@ local function testSpriteGridView()
 	require "tilemap.SpriteGridView"
 	require "tilemap.DebugGridView"
 	require "tilemap.TileTypes"
-	local grid = Grid:new(10, 10, 0)
+
+	local TILE_WIDTH = 32
+	local TILE_HEIGHT = 32
+	local ROWS = 10
+	local COLS = 10
+
+	local grid = Grid:new(ROWS, COLS, 0)
 	local jxl = SpriteVO:new()
 	local cow = SpriteVO:new()
 	local spriteGrid = SpriteGrid:new(grid)
 	spriteGrid:addSprite(jxl, 2, 2)
-	local spriteGridView = SpriteGridView:new(spriteGrid, 16, 16)
-	spriteGridView.x = 30
-	spriteGridView.y = 30
+	local spriteGridView = SpriteGridView:new(spriteGrid, jxl, TILE_WIDTH, TILE_HEIGHT)
+	spriteGridView.x = stage.width / 2 - (TILE_WIDTH * COLS) / 2
+	spriteGridView.y = 60
 
-	local mapGrid = Grid:new(10, 10, 0)
+	local mapGrid = Grid:new(ROWS, COLS, 0)
 	mapGrid:setTile(3, 3, TileTypes.IMPASSABLE)
-	local debugGridView = DebugGridView:new(mapGrid, 16, 16)
-	debugGridView.x = 30
-	debugGridView.y = 30
+	local debugGridView = DebugGridView:new(mapGrid, TILE_WIDTH, TILE_HEIGHT)
+	debugGridView.x = stage.width / 2 - (TILE_WIDTH * COLS) / 2
+	debugGridView.y = spriteGridView.y
 
+	--[[
 	local t = {}
 	function t:timer(e)
 		spriteGrid:addSprite(cow, 5, 5)
@@ -83,9 +103,19 @@ local function testSpriteGridView()
 		spriteGrid:moveNorth(jxl)
 	end
 	timer.performWithDelay(4 * 1000, later)
+	]]--
 
+	spriteGrid:addSprite(cow, 5, 5)
+
+	require "gui.PlayerControls"
+	local button = PlayerControls:new()
+
+	require "tilemap.SpriteGridViewPM"
+	local pm = SpriteGridViewPM:new(spriteGridView)
 end
 
+
+setupGlobals()
 
 --testGrid()
 --testSpriteGrid()

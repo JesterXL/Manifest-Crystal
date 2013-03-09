@@ -1,13 +1,14 @@
 SpriteGridView = {}
 
-function SpriteGridView:new(spriteGrid, tileWidth, tileHeight)
+function SpriteGridView:new(spriteGrid, playerSpriteVO, tileWidth, tileHeight)
 
 	local view = display.newGroup()
 	view.spriteGrid = nil
 	view.tileWidth = tileWidth
 	view.tileHeight = tileHeight
+	view.playerSpriteVO = nil
 
-	function view:init(spriteGrid, tileWidth, tileHeight)
+	function view:init(spriteGrid, playerSpriteVO, tileWidth, tileHeight)
 		self.spriteGrid = spriteGrid
 		self.spriteGrid:addEventListener("onAdded", self)
 		self.spriteGrid:addEventListener("onRemoved", self)
@@ -15,6 +16,7 @@ function SpriteGridView:new(spriteGrid, tileWidth, tileHeight)
 
 		self.tileWidth = tileWidth
 		self.tileHeight = tileHeight
+		self.playerSpriteVO = playerSpriteVO
 
 		local startX = 0
 		local startY = 0
@@ -82,11 +84,16 @@ function SpriteGridView:new(spriteGrid, tileWidth, tileHeight)
 		
 		local targetX = event.col * self.tileWidth - sprite.width / 2
 		local targetY = event.row * self.tileHeight - sprite.height / 2
-		sprite.tweenID = transition.to(sprite, {x=targetX, y=targetY, time=500})
-		self.lastSprite = sprite
+		sprite.tweenID = transition.to(sprite, {x=targetX, y=targetY, time=500, onComplete=self})
+		spriteVO.moving = true
 	end
 
-	view:init(spriteGrid, tileWidth, tileHeight)
+	function view:onComplete(sprite)
+		sprite.spriteVO.moving = false
+		sprite.tweenID = nil
+	end
+
+	view:init(spriteGrid, playerSpriteVO, tileWidth, tileHeight)
 
 	return view
 

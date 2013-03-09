@@ -53,6 +53,8 @@ function SpriteGrid:new(grid)
 	end
 
 	function spriteGrid:moveSprite(sprite, row, col)
+		if sprite.moving == true then return true, "Sprite is moving" end
+		
 		local grid = self.grid
 		local direction
 		local oldRow = sprite.currentRow
@@ -68,8 +70,9 @@ function SpriteGrid:new(grid)
 		end
 		
 		sprite.direction = direction
-
-		if self:canMoveToTile(sprite, row, col) == false  then return false end
+		
+		local canMoveThere, whyNot = self:canMoveToTile(sprite, row, col)
+		if canMoveThere == false  then return false, whyNot end
 
 		local spriteAtPos = grid:getTile(row, col)
 		if spriteAtPos ~= 0 and spriteAtPos == sprite  then return false end
@@ -84,7 +87,7 @@ function SpriteGrid:new(grid)
 		return true
 	end
 
-	function spriteGrid:getWhateverYourFacing(sprite)
+	function spriteGrid:getWhateverYoureFacing(sprite)
 		local currentRow = sprite.currentRow
 		local currentCol = sprite.currentCol
 		local targetRow = currentRow
@@ -103,19 +106,19 @@ function SpriteGrid:new(grid)
 	end
 
 	function spriteGrid:moveNorth(sprite)
-		self:moveSprite(sprite, sprite.currentRow - 1, sprite.currentCol)
+		return self:moveSprite(sprite, sprite.currentRow - 1, sprite.currentCol)
 	end
 
 	function spriteGrid:moveSouth(sprite)
-		self:moveSprite(sprite, sprite.currentRow + 1, sprite.currentCol)
+		return self:moveSprite(sprite, sprite.currentRow + 1, sprite.currentCol)
 	end
 
-	function spriteGrid:moveEase(sprite)
-		self:moveSprite(sprite, sprite.currentRow, sprite.currentCol + 1)
+	function spriteGrid:moveEast(sprite)
+		return self:moveSprite(sprite, sprite.currentRow, sprite.currentCol + 1)
 	end
 
 	function spriteGrid:moveWest(sprite)
-		self:moveSprite(sprite, sprite.currentRow, sprite.currentCol - 1)
+		return self:moveSprite(sprite, sprite.currentRow, sprite.currentCol - 1)
 	end
 
 	-- utility --
@@ -128,17 +131,17 @@ function SpriteGrid:new(grid)
 	end
 
 	function spriteGrid:canMoveToTile(sprite, row, col)
-		if row < 0 then return false end
-		if col < 0 then return false end
+		if row < 1 then return false, "Row too small" end
+		if col < 1 then return false, "Col too small" end
 		local grid = self.grid
-		if row > grid.rows then return false end
-		if col > grid.cols then return false end
+		if row > grid.rows then return false, "Row too big" end
+		if col > grid.cols then return false, "Col too big" end
 
 		local tile = grid:getTile(row, col)
-		if tile == sprite then return false end
-		if tile == 0  then return true end
+		if tile == sprite then return false, "You're already in that tile" end
+		if tile == 0 or tile == nil then return true end
 
-		return false
+		return false, "Tile is not moveable:" .. tostring(tile)
 	end
 
 	spriteGrid:init(grid)
