@@ -73,8 +73,8 @@ local function testSpriteGridView()
 
 	local TILE_WIDTH = 32
 	local TILE_HEIGHT = 32
-	local ROWS = 10
-	local COLS = 10
+	local ROWS = 40
+	local COLS = 40
 
 	local grid = Grid:new(ROWS, COLS, 0)
 	local jxl = SpriteVO:new()
@@ -82,13 +82,15 @@ local function testSpriteGridView()
 	local spriteGrid = SpriteGrid:new(grid)
 	spriteGrid:addSprite(jxl, 2, 2)
 	local spriteGridView = SpriteGridView:new(spriteGrid, jxl, TILE_WIDTH, TILE_HEIGHT)
-	spriteGridView.x = stage.width / 2 - (TILE_WIDTH * COLS) / 2
+	--spriteGridView.x = stage.width / 2 - (TILE_WIDTH * COLS) / 2
+	spriteGridView.x = 60
 	spriteGridView.y = 60
 
 	local mapGrid = Grid:new(ROWS, COLS, 0)
 	mapGrid:setTile(3, 3, TileTypes.IMPASSABLE)
 	local debugGridView = DebugGridView:new(mapGrid, TILE_WIDTH, TILE_HEIGHT)
-	debugGridView.x = stage.width / 2 - (TILE_WIDTH * COLS) / 2
+	--debugGridView.x = stage.width / 2 - (TILE_WIDTH * COLS) / 2
+	debugGridView.x = 60
 	debugGridView.y = spriteGridView.y
 
 	--[[
@@ -109,15 +111,114 @@ local function testSpriteGridView()
 
 	require "gui.PlayerControls"
 	local button = PlayerControls:new()
+	button.isVisible = false
 
 	require "tilemap.SpriteGridViewPM"
 	local pm = SpriteGridViewPM:new(spriteGridView)
 end
 
+local function testRadials()
+	local items = 5
+	local radius = 40
+
+	local getPointFromRadian = function(radian)
+		return math.cos(radian), math.sin(radian)
+	end
+	local offset = 90
+
+	local holder = display.newGroup()
+	for i=1,items do
+		local circle = display.newCircle(0, 0, 10)
+		holder:insert(circle)
+		holder["circle" .. i] = circle
+	end
+
+	holder.x = 100
+	holder.y = 100
+
+	local getObjectPosition = function(index, itemsLen, offset, radius)
+		local degree = 360 / itemsLen * index + offset
+		local pX, pY = getPointFromRadian(math.rad(degree))
+		pX = pX * radius
+		pY = pY * radius
+		return pX, pY
+	end
+
+	local position = function()
+		--offset = offset + 1
+		for i=1,items do
+			local pX, pY = getObjectPosition(i, items, offset, radius)
+			local circle = holder["circle" .. i]
+			circle.x = pX
+			circle.y = pY
+		end
+	end
+	
+	for i=1,items do
+		local pX, pY = getObjectPosition(i, items, offset, radius)
+		local circle = holder["circle" .. i]
+		transition.to(circle, {x=pX, y=pY, time=500, transition=easing.outExpo})
+	end
+end
+
+local function testRadialMenu()
+	require "gui.RadialMenu"
+	require "gui.MenuVO"
+
+	local list = {}
+	table.insert(list, MenuVO:new("Items", "gui/radialmenuimages/menu-item-items.png"))
+	table.insert(list, MenuVO:new("Equip", "gui/radialmenuimages/menu-item-equip.png"))
+	table.insert(list, MenuVO:new("Relic", "gui/radialmenuimages/menu-item-relic.png"))
+
+	local menu = RadialMenu:new()
+
+	local buildMenu2 = function(e)
+		local list2 = {}
+		table.insert(list2, MenuVO:new("Quatro"))
+		table.insert(list2, MenuVO:new("Cinco"))
+		table.insert(list2, MenuVO:new("Ses"))
+		print(e.x, e.y, menu.x, menu.y)
+		menu.x = e.x
+		menu.y = e.y
+		menu:build(list2)
+	end
+
+	local t = {}
+	function t:onRadialMenuItemTouched(e)
+		if e.phase == "moved" or e.phase == "began" then
+			menu:removeEventListener("onRadialMenuItemTouched", t)
+			buildMenu2(e)
+			return true
+		end
+	end
+
+	function t:touch(e)
+		if e.phase == "began" then
+			
+			menu.x = e.x
+			menu.y = e.y
+			
+			menu:addEventListener("onRadialMenuItemTouched", t)
+			menu:build(list)
+			Runtime:removeEventListener("touch", t)
+			return true
+		end
+	end
+	Runtime:addEventListener("touch", t)
+end
+
+local function testMainRadialMenu()
+	require "gui.MainRadialMenu"
+	local menu = MainRadialMenu:new()
+end
 
 setupGlobals()
 
 --testGrid()
 --testSpriteGrid()
 --testDebugGridView()
-testSpriteGridView()
+--testSpriteGridView()
+
+--testRadials()
+--testRadialMenu()
+testMainRadialMenu()

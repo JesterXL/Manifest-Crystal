@@ -4,9 +4,12 @@ RadialMenu = {}
 function RadialMenu:new()
 
 	local menu = display.newGroup()
+	menu.classType = "RadialMenu"
 	menu.offset = 90
 	menu.radius = 100
 	menu.menuVOArray = nil
+	menu.callbackScope = nil
+	menu.callbackFunction = nil
 
 	function menu:getPointFromRadian(radian)
 		return math.cos(radian), math.sin(radian)
@@ -33,7 +36,10 @@ function RadialMenu:new()
 			local vo = menuVOArray[i]
 			local item = RadialMenuItem:new(vo)
 			function item:touch(event)
-				menu:dispatchEvent({name="onRadialMenuItemTouched", phase=event.phase, menuVO=self.menuVO, x=event.x, y=event.y})
+				--menu:dispatchEvent({name="onRadialMenuItemTouched", 
+					--phase=event.phase, menuVO=self.menuVO, 
+					--x=event.x, y=event.y})
+				menu:executeCallback({phase=event.phase, menuVO=self.menuVO, x=event.x, y=event.y})
 				return true
 			end
 			item:addEventListener("touch", item)
@@ -43,6 +49,18 @@ function RadialMenu:new()
 
 			local pX, pY = self:getObjectPosition(i, #menuVOArray, offset, radius)
 			transition.to(item, {x=pX, y=pY, time=500, transition=easing.outExpo})
+		end
+	end
+
+	function menu:setMenuItemTouchedCallback(scope, func)
+		self.callbackScope = scope
+		self.callbackFunction = func
+	end
+
+	function menu:executeCallback(args)
+		if self.callbackFunction and self.callbackScope then
+			--self.callbackFunction(self.callbackScope, args)
+			self.callbackScope[self.callbackFunction](self.callbackScope, args)
 		end
 	end
 

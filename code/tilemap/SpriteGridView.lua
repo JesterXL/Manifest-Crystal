@@ -32,6 +32,8 @@ function SpriteGridView:new(spriteGrid, playerSpriteVO, tileWidth, tileHeight)
 			startX = 0
 			startY = startY + tileHeight
 		end
+
+		gameLoop:addLoop(self)
 	end
 
 	function view:createSprite(spriteVO)
@@ -91,6 +93,20 @@ function SpriteGridView:new(spriteGrid, playerSpriteVO, tileWidth, tileHeight)
 	function view:onComplete(sprite)
 		sprite.spriteVO.moving = false
 		sprite.tweenID = nil
+	end
+
+	function view:tick(time)
+		self:scroll()
+	end
+
+	function view:scroll()
+		local w = stage.width
+		local w2 = w / 2
+		local player = self:findSprite(self.playerSpriteVO)
+		local lastX = self.x
+		local finalScrollX = math.min(0, w2 - player.x)
+		finalScrollX = math.max(finalScrollX, -(self.width - stage.width - 20))
+		self.x = finalScrollX
 	end
 
 	view:init(spriteGrid, playerSpriteVO, tileWidth, tileHeight)

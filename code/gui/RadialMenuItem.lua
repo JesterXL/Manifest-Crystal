@@ -12,23 +12,27 @@ function RadialMenuItem:new(menuVO)
 		field:setTextColor(255, 255, 255)
 
 		
+		local icon
 		if menuVO.icon then
-			local icon
 			if type(menuVO.icon) == "string" then
 				icon = display.newImage(menuVO.icon)
 			else
 				icon = menuVO.icon
 			end
-			self:insert(icon)
-			self.icon = icon
-			icon.y = field.y + field.height + icon.height / 2
+		else
+			icon = display.newCircle(0, 0, 20)
+			icon.x = icon.width / 2
 		end
+		self:insert(icon)
+		self.icon = icon
+		icon.y = field.y + field.height + icon.height / 2
 	end
 
 	function menu:destroy()
 		self.field:removeSelf()
 		if self.icon then
 			self.icon:removeSelf()
+			self.icon = nil
 		end
 		self.menuVO = nil
 		self:removeSelf()
