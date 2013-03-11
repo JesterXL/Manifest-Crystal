@@ -6,8 +6,15 @@ function RadialMenuItem:new(menuVO)
 	menu.menuVO = nil
 
 	function menu:init(menuVO)
+		local bg = display.newRect(0, 0, 72, 72)
+		--local bg = display.newCircle(0, 0, 10)
+		bg:setFillColor(0, 0, 255, 0)
+		self:insert(bg)
+		self.bg = bg
+
 		self.menuVO = menuVO
-		local field = display.newText(self, menuVO.label, 0, 0, native.systemFont, 14)
+		local field = display.newText(self, menuVO.label, 0, 0, native.systemFont, 18)
+		field:setReferencePoint(display.TopLeftReferencePoint)
 		self.field = field
 		field:setTextColor(255, 255, 255)
 
@@ -25,10 +32,17 @@ function RadialMenuItem:new(menuVO)
 		end
 		self:insert(icon)
 		self.icon = icon
-		icon.y = field.y + field.height + icon.height / 2
+
+
+		field.x = 72 / 2 - field.width / 2
+		icon.y = field.y + field.height + icon.height / 2 + 4
+		icon.x = 72 / 2
+
+
 	end
 
 	function menu:destroy()
+		self.bg:removeSelf()
 		self.field:removeSelf()
 		if self.icon then
 			self.icon:removeSelf()

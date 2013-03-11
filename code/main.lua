@@ -10,7 +10,30 @@ local function setupGlobals()
 	_G.stage = display.getCurrentStage()
 
 	--_G._ = require "utils.underscore"
+	
+	_G.platform = system.getInfo("platformName")
 end
+
+function showProps(o)
+	print("-- showProps --")
+	print("o: ", o)
+	for key,value in pairs(o) do
+		print("key: ", key, ", value: ", value);
+	end
+	print("-- end showProps --")
+end
+
+function onSystemEvent(event)
+
+	if platform == "Mac OS X" then return true end
+
+	if event.type == "applicationExit" or event.type == "applicationSuspend" then
+		os.exit()
+	end
+
+	--elseif event.type == "applicationResume"
+end
+Runtime:addEventListener("system", onSystemEvent)
 
 local function testGrid()
 	require "tilemap.Grid"
@@ -195,8 +218,8 @@ local function testRadialMenu()
 	function t:touch(e)
 		if e.phase == "began" then
 			
-			menu.x = e.x
-			menu.y = e.y
+			--menu.x = e.x
+			--menu.y = e.y
 			
 			menu:addEventListener("onRadialMenuItemTouched", t)
 			menu:build(list)
@@ -205,11 +228,109 @@ local function testRadialMenu()
 		end
 	end
 	Runtime:addEventListener("touch", t)
+
+	local c = {}
+	function c:touch(e)
+		menu.x = e.x
+		menu.y = e.y
+	end
+	Runtime:addEventListener("touch", c)
+end
+
+local function testRadialMenuVariations()
+	require "gui.RadialMenu"
+	require "gui.MenuVO"
+	local menu = RadialMenu:new()
+	local list = {}
+	table.insert(list, MenuVO:new("L Arm"))
+	table.insert(list, MenuVO:new("Head"))
+	table.insert(list, MenuVO:new("R Arm"))
+	table.insert(list, MenuVO:new("Body"))
+	table.insert(list, MenuVO:new("Back"))
+	menu:build(list, {radiusSize= "small"})
+
+	menu.x = stage.width / 2 - 35
+	menu.y = stage.height / 2 - 35
+	local weapons = {}
+	table.insert(weapons, MenuVO:new("Sword"))
+	table.insert(weapons, MenuVO:new("Shield"))
+	table.insert(weapons, MenuVO:new("Axe"))
+	table.insert(weapons, MenuVO:new("Whip"))
+
+	local getRot = function(x1, y1, x2, y2)
+		return math.atan2(y1 - y2, x1 - x2) / math.pi * 180 - 90
+	end
+
+	local t = {}
+	function t:onCallback(e)
+		if e.phase == "ended" then
+			--print("degree:", e.item.degree)
+			--print("rotation:", getRot(0, 0, e.item.x, e.item.y))
+			--menu.bg.rotation = getRot(0, 0, e.item.x, e.item.y)
+			local menuSmall 
+			if self.menuSmall == nil then
+				menuSmall = RadialMenu:new()
+				self.menuSmall = menuSmall
+			else
+				menuSmall = self.menuSmall
+			end
+			--local rot = getRot(0, 0, e.item.x, e.item.y)
+			--rot = rot + e.item.degree
+
+			local label = e.menuVO.label
+			local props = {radiusSize="small", circleSize=180}
+			if label == "L Arm" then
+				props.offset = 50
+				menuSmall:build(weapons, props)
+			elseif label == "R Arm" then
+				props.offset = 200
+				menuSmall:build(weapons, props)
+			elseif label == "Head" then
+				props.offset = 120
+				menuSmall:build(weapons, props)
+			elseif label == "Body" then
+				props.offset = 270
+				menuSmall:build(weapons, props)
+			else
+				menuSmall:destroy()
+			end
+
+			local pX, pY = menu:localToContent(e.item.x, e.item.y)
+			--print("--------")
+			--print("before:", pX, pY)
+			pX, pY = menu:contentToLocal(pX, pY)
+			--print("item:", e.item.x, e.item.y)
+			--print("after:", pX, pY)
+			--print("menu:", menu.x, menu.y)
+			--pX = 30
+			--pY = 30
+			--pX = pX + menu.x
+			--pY = pY + menu.y
+			local circle
+			if self.circle == nil then
+				circle = display.newCircle(30, 30, 10)
+				circle:setFillColor(255, 0, 0, 0)
+				self.circle = circle
+			else
+				circle = self.circle
+			end
+			--pX = pX - 35
+			--pY = pY - 35
+			menuSmall.x = pX + menu.x
+			menuSmall.y = pY + menu.y
+			circle.x = pX + menu.x
+			circle.y = pY + menu.y
+
+		end
+	end
+	menu:setCallback(t, "onCallback")
 end
 
 local function testMainRadialMenu()
 	require "gui.MainRadialMenu"
 	local menu = MainRadialMenu:new()
+	menu.x = stage.width / 2 - menu.width / 2
+	menu.y = stage.height / 2 - menu.height / 2
 end
 
 setupGlobals()
@@ -221,4 +342,6 @@ setupGlobals()
 
 --testRadials()
 --testRadialMenu()
+--testRadialMenuVariations()
 testMainRadialMenu()
+
