@@ -5,11 +5,10 @@ BattleTimer.MODE_MONSTER   = "monster"
 function BattleTimer:new(mode)
 
 	local battleTimer          = display.newGroup()
+	-- TODO: need a setter for this
 	battleTimer.EFFECT_NORMAL  = 96
 	battleTimer.EFFECT_HASTE   = 126
 	battleTimer.EFFECT_SLOW    = 48
-	
-	
 	
 	battleTimer.MAX            = 65536
 	battleTimer.TIME_SLICE     = 33
@@ -24,6 +23,7 @@ function BattleTimer:new(mode)
 	battleTimer.gauge          = 0
 	battleTimer.modeFunction   = nil
 	battleTimer.enabled        = true
+	battleTimer.running 		= false
 
 	function battleTimer:getProgress()
 		return self.gauge / self.MAX
@@ -52,11 +52,17 @@ function BattleTimer:new(mode)
 		if self.enabled == false then
 			return false
 		end
-		gameLoop:addLoop(self)
+		if self.running == false then
+			self.running = true
+			gameLoop:addLoop(self)
+		end
 	end
 
 	function battleTimer:stop()
-		gameLoop:removeLoop(self)
+		if self.running then
+			self.running = false
+			gameLoop:removeLoop(self)
+		end
 	end
 
 	function battleTimer:reset()
@@ -87,18 +93,18 @@ function BattleTimer:new(mode)
 
 	function battleTimer:onCharacterTick()
 		self.gauge = self.gauge + ((self.effect * (self.speed + 20)) / 16)
-		self:dispatchEvent({name="onBattleProgress", progress=self.gauge / self.MAX})
+		self:dispatchEvent({name="onBattleTimerProgress", target=self, progress=self.gauge / self.MAX})
 		if self.gauge >= self.MAX then
-			self:dispatchEvent({name="onBattleGaugeFull"})
+			self:dispatchEvent({name="onBattleTimerComplete", target=self})
 			self.gauge = 0
 		end
 	end
 
 	function battleTimer:onMonsterTick()
 		self.gauge = self.gauge + (((self.effect * (self.speed + 20)) * (255 - ((self.battleSpeed - 1) * 24))) / 16)
-		self:dispatchEvent({name="onBattleProgress", progress=self.gauge / self.MAX})
+		self:dispatchEvent({name="onBattleTimerProgress", target=self, progress=self.gauge / self.MAX})
 		if self.gauge >= self.MAX then
-			self:dispatchEvent({name="onBattleGaugeFull"})
+			self:dispatchEvent({name="onBattleTimerComplete", target=self})
 			self.gauge = 0
 		end
 	end

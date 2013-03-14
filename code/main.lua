@@ -15,6 +15,10 @@ local function setupGlobals()
 	_G.platform = system.getInfo("platformName")
 end
 
+function isInteger(x)
+	return math.floor(x)==x
+end
+
 function showProps(o)
 	print("-- showProps --")
 	print("o: ", o)
@@ -355,9 +359,22 @@ local function testBattleTimer()
 	timer:addEventListener("onBattleProgress", t)
 	timer:addEventListener("onBattleGaugeFull", t)
 	timer:start()
+end
 
-	
+local function testBattleMenu()
+	require "gui.BattleMenu"
+	local menu = BattleMenu:new()
+	menu:showActions()
+	local t = {}
+	function t:onBattleMenuActionTouched(e)
+		print("onActionTouched, item: " .. e.action)
+	end
+	menu:addEventListener("onBattleMenuActionTouched", t)
+end
 
+local function testBattleController()
+	require "tests.TestingBattleController"
+	local dasUberTest = TestingBattleController:new()
 end
 
 setupGlobals()
@@ -372,4 +389,8 @@ setupGlobals()
 --testRadialMenuVariations()
 --testMainRadialMenu()
 
-testBattleTimer()
+--testBattleTimer()
+--testBattleMenu()
+testBattleController()
+
+--require "unittests"
