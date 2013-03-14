@@ -29,27 +29,27 @@ function TestingBattleController:new()
 		self.monsters = monsters
 
 		local battleController = BattleController:new(characters, monsters)
-		Runtime:addEventListener("onBattleTimerProgress", self)
-		Runtime:addEventListener("onCharacterReady", self)
-		Runtime:addEventListener("onActionResult", self)
-		Runtime:addEventListener("onBattleLost", self)
-		Runtime:addEventListener("onBattleWon", self)
+		battleController:addEventListener("onBattleTimerProgress", self)
+		battleController:addEventListener("onCharacterReady", self)
+		battleController:addEventListener("onActionResult", self)
+		battleController:addEventListener("onBattleLost", self)
+		battleController:addEventListener("onBattleWon", self)
 		self.battleController = battleController
 
 		local startX = 100
 		local startY = 200
 		local createProgressBar = function(character)
-			local progressBar = ProgressBar:new(255, 255, 255, 0, 242, 0, 30, 10)
+			local progressBar = ProgressBar:new(255, 255, 255, 0, 242, 0, 60, 20)
 			progressBar.character = character
 			progressBar.x = startX
 			progressBar.y = startY
 			character.progressBar = progressBar
-			startY = startY + 22
+			startY = startY + 30
 		end
 		createProgressBar(jesse)
 		createProgressBar(brandy)
-		createProgressBar(goblin1)
-		createProgressBar(goblin2)
+		--createProgressBar(goblin1)
+		--createProgressBar(goblin2)
 
 		local battleMenu = BattleMenu:new()
 		battleMenu:showActions()
@@ -62,14 +62,18 @@ function TestingBattleController:new()
 	end
 
 	function test:onBattleTimerProgress(e)
-		if e.timer.character.classType == "MonsterVO" then
+		local timer = e.timer
+		local character = timer.character
+		local progressBar = character.progressBar
+		if character.classType == "MonsterVO" then
 			return false
 		end
-
-		e.timer.character.progressBar:setProgress(e.progress, 1)
+		progressBar:setProgress(e.progress, 1)
 	end
 
 	function test:onCharacterReady(e)
+		print("TestingBattleController::onCharacterReady")
+		local battleMenu = self.battleMenu
 		if battleMenu.isVisible == false then
 			battleMenu.isVisible = true
 			battleMenu:showActions()
@@ -82,6 +86,7 @@ function TestingBattleController:new()
 
 	function test:onBattleMenuActionTouched(e)
 		local action = e.action
+		print("TestingBattleController::onBattleMenuActionTouched, action:" .. action)
 		self.lastBattleActionChosen = action
 		local hide = true
 		if action == BattleMenu.ATTACK then

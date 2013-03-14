@@ -344,20 +344,21 @@ local function testBattleTimer()
 	timer.speed = 80
 
 	require "gui.ProgressBar"
-	local bar = ProgressBar:new(255, 255, 255, 0, 242, 0, 30, 10)
+	local bar = ProgressBar:new(255, 255, 255, 0, 242, 0, 60, 20)
 	bar.x = 30
 	bar.y = 30
 
 	local t = {}
-	function t:onBattleProgress(e)
-		print("progress:" .. e.progress)
+	function t:onBattleTimerProgress(e)
+		--print("progress:" .. e.progress)
 		bar:setProgress(e.progress, 1)
 	end
-	function t:onBattleTick(e)
+	function t:onBattleTimerComplete(e)
 		print("tick")
 	end
-	timer:addEventListener("onBattleProgress", t)
-	timer:addEventListener("onBattleGaugeFull", t)
+	timer:addEventListener("onBattleTimerProgress", t)
+	timer:addEventListener("onBattleTimerComplete", t)
+	timer:reset()
 	timer:start()
 end
 

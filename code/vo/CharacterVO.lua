@@ -10,7 +10,7 @@ function CharacterVO:new()
 	character.classType = "CharacterVO"
 	character.name = nil
 	character.vigor = 1
-	character.speed = 1
+	character.speed = 80
 	character.stamina = 1
 	character.magicPower = 1
 	character.evade = 1

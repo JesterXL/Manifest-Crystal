@@ -5,6 +5,7 @@ BattleTimer.MODE_MONSTER   = "monster"
 function BattleTimer:new(mode)
 
 	local battleTimer          = display.newGroup()
+	battleTimer.classType 		= "BattleTimer"
 	-- TODO: need a setter for this
 	battleTimer.EFFECT_NORMAL  = 96
 	battleTimer.EFFECT_HASTE   = 126
@@ -16,7 +17,7 @@ function BattleTimer:new(mode)
 	battleTimer.lastTick       = 0
 	
 	battleTimer.speed          = 0
-	battleTimer.battleSpeed    = 3
+	battleTimer.battleSpeed    = 128
 	battleTimer.effect         = battleTimer.EFFECT_NORMAL
 	battleTimer.mode           = nil
 	
@@ -41,6 +42,8 @@ function BattleTimer:new(mode)
 	function battleTimer:setMode(newMode)
 		assert(newMode ~= nil, "newMode cannot be nil")
 		self.mode = newMode
+		-- HACK/KLUDGE/HARDCODE
+		self.mode = BattleTimer.MODE_CHARACTER
 		if self.mode == BattleTimer.MODE_CHARACTER then
 			self.modeFunction = self.onCharacterTick
 		else
@@ -100,10 +103,17 @@ function BattleTimer:new(mode)
 		end
 	end
 
+	-- BUG: I don't get why this algo doesn't work, I give up, moving on
 	function battleTimer:onMonsterTick()
+		print("before:", self.gauge)
+		-- ((96 * (Speed + 20)) * (255 - ((Battle Speed - 1) * 24))) / 16
+		--self.gauge = self.gauge + ((96 * (self.speed + 20)) * (255 - ((self.battleSpeed - 1) * 24))) / 16
 		self.gauge = self.gauge + (((self.effect * (self.speed + 20)) * (255 - ((self.battleSpeed - 1) * 24))) / 16)
+		print("after:", self.gauge)
 		self:dispatchEvent({name="onBattleTimerProgress", target=self, progress=self.gauge / self.MAX})
+		
 		if self.gauge >= self.MAX then
+			print("self.gauge:", self.gauge, ", self.MAX:", self.MAX)
 			self:dispatchEvent({name="onBattleTimerComplete", target=self})
 			self.gauge = 0
 		end

@@ -7,7 +7,7 @@ BattleController = {}
 
 function BattleController:new(characters, monsters)
 
-	local battle = {}
+	local battle = display.newGroup()
 	battle.charactersReady = {}
 	battle.characters = nil
 	battle.monsters = nil
@@ -307,7 +307,7 @@ function BattleController:new(characters, monsters)
 
 	function battle:onBattleTimerProgress(event)
 		-- this allows progress bars to update
-		Runtime:dispatchEvent({name="onBattleTimerProgress",
+		self:dispatchEvent({name="onBattleTimerProgress",
 								target=self,
 								timer=event.target,
 								progress=event.progress})
@@ -321,6 +321,7 @@ function BattleController:new(characters, monsters)
 	function battle:onCharacterReady(battleTimer)
 		print("BattleController::onCharacterReady")
 		local character = battleTimer.character
+		print("it's a " .. character.classType)
 		if character.classType == "MonsterVO" then
 			local monsterTarget = self:getRandomCharacterForMonster()
 			if monsterTarget then
@@ -410,7 +411,7 @@ function BattleController:new(characters, monsters)
 			table.insert(self.charactersReady, character)
 			-- this allows the menu to come up for a particular
 			-- character so they can choose an action
-			Runtime:dispatchEvent({name="onCharacterReady",
+			self:dispatchEvent({name="onCharacterReady",
 									target=self,
 									character=character})
 		end
@@ -433,7 +434,7 @@ function BattleController:new(characters, monsters)
 		-- this allows a View to animate interations based on the result
 		-- of some action, like a monster attacking a character,
 		-- or a character casting a spell on the monsters
-		Runtime:dispatchEvent({name="onActionResult",
+		self:dispatchEvent({name="onActionResult",
 								target=self,
 								actionResult=result})
 	end
@@ -466,14 +467,14 @@ function BattleController:new(characters, monsters)
 		if allCharactersDead then
 			self:pause()
 			self.battleOver = true
-			Runtime:dispatchEvent({name="onBattleLost", target=self})
+			self:dispatchEvent({name="onBattleLost", target=self})
 			return true
 		end
 
 		if allMonstersDead then
 			self:pause()
 			self.battleOver = true
-			Runtime:dispatchEvent({name="onBattleWon", target=self})
+			self:dispatchEvent({name="onBattleWon", target=self})
 			return true
 		end
 	end
