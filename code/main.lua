@@ -11,6 +11,7 @@ local function setupGlobals()
 
 	--_G._ = require "utils.underscore"
 	
+	
 	_G.platform = system.getInfo("platformName")
 end
 
@@ -333,6 +334,32 @@ local function testMainRadialMenu()
 	menu.y = stage.height / 2 - menu.height / 2
 end
 
+local function testBattleTimer()
+	require "battle.BattleTimer"
+	local timer = BattleTimer:new(BattleTimer.MODE_CHARACTER)
+	timer.speed = 80
+
+	require "gui.ProgressBar"
+	local bar = ProgressBar:new(255, 255, 255, 0, 242, 0, 30, 10)
+	bar.x = 30
+	bar.y = 30
+
+	local t = {}
+	function t:onBattleProgress(e)
+		print("progress:" .. e.progress)
+		bar:setProgress(e.progress, 1)
+	end
+	function t:onBattleTick(e)
+		print("tick")
+	end
+	timer:addEventListener("onBattleProgress", t)
+	timer:addEventListener("onBattleGaugeFull", t)
+	timer:start()
+
+	
+
+end
+
 setupGlobals()
 
 --testGrid()
@@ -343,5 +370,6 @@ setupGlobals()
 --testRadials()
 --testRadialMenu()
 --testRadialMenuVariations()
-testMainRadialMenu()
+--testMainRadialMenu()
 
+testBattleTimer()
