@@ -563,7 +563,7 @@ BattleUtils.getHit = function(isPhysicalAttack,
 								AttackTypes.X_FER,
 								AttackTypes.GRAV_BOMB}
 		local i
-		for i=1,#types do
+		for i=1,#attackTypes do
 			if specialAttackType == attackTypes[i] then
 				match = true
 				break

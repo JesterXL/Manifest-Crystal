@@ -378,6 +378,14 @@ local function testBattleController()
 	local dasUberTest = TestingBattleController:new()
 end
 
+local function testBattleView()
+	require "gui.BattleView"
+	require "utils.Generator"
+	local c, m = Generator.getCharactersAndMonsters()
+	local view = BattleView:new(c, m)
+
+end
+
 setupGlobals()
 
 --testGrid()
@@ -393,5 +401,6 @@ setupGlobals()
 --testBattleTimer()
 --testBattleMenu()
 testBattleController()
+--testBattleView()
 
 --require "unittests"

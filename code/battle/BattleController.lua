@@ -123,6 +123,10 @@ function BattleController:new(characters, monsters)
 
 		print("BattleController::attack")
 
+		assert(attacker, "Attacker cannot be nil")
+		assert(targets, "targets cannot be nil")
+		assert(#targets > 0, "targets cannot be empty")
+
 		if table.indexOf(self.charactersReady, attacker) == nil then
 			error("BattleController::attack, unknown attacker, he's not in our ready list.")
 		end

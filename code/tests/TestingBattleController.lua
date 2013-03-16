@@ -3,11 +3,14 @@ require "vo.MonsterVO"
 require "battle.BattleController"
 require "gui.ProgressBar"
 require "gui.BattleMenu"
+require "gui.BattleView"
+
 TestingBattleController = {}
 
 function TestingBattleController:new()
 
 	local test = {}
+	test.lastBattleActionChosen = nil
 
 	function test:init()
 		local characters = {}
@@ -59,6 +62,11 @@ function TestingBattleController:new()
 		battleController:start()
 		self.battleMenu = battleMenu
 
+		local battleView = BattleView:new(characters, monsters)
+		battleView:addEventListener("onBattleViewMonsterTouched", self)
+		battleView:addEventListener("onBattleViewCharacterTouched", self)
+		battleView:addEventListener("onBattleViewActionAnimationComplete", self)
+		self.battleView = battleView
 	end
 
 	function test:onBattleTimerProgress(e)
@@ -81,7 +89,7 @@ function TestingBattleController:new()
 	end
 
 	function test:onActionResult(e)
-		-- TODO
+		self.battleView:handleAction(e.actionResult)
 	end
 
 	function test:onBattleMenuActionTouched(e)
@@ -90,16 +98,41 @@ function TestingBattleController:new()
 		self.lastBattleActionChosen = action
 		local hide = true
 		if action == BattleMenu.ATTACK then
-			-- TODO
+			self.battleView:enableMonsterTouching(true)
 		elseif action == BattleMenu.DEFEND then
-			battleController:defend(battleController.charactersReady[0])
+			battleController:defend(battleController.charactersReady[1])
 		elseif action == BattleMenu.ITEM then
 			-- TODO
 		elseif action == BattleMenu.CHANGE_ROW then
-			battleController:changeRow(battleController.charactersReady[0])
+			battleController:changeRow(battleController.charactersReady[1])
 		elseif action == BattleMenu.RUN then
-			battleController:run(battleController.charactersReady[0])
+			battleController:run(battleController.charactersReady[1])
 		end
+	end
+
+	function test:onBattleViewMonsterTouched(event)
+		self.battleView:enableMonsterTouching(false)
+		self.battleView:enableCharacterTouching(false)
+		local targets = {event.monster}
+		local battleController = self.battleController
+		if self.lastBattleActionChosen == BattleMenu.ATTACK then
+			print(targets)
+			print(#targets)
+			print("monster:", event.monster)
+			battleController:attack(battleController.charactersReady[1],
+									targets,
+									self.lastBattleActionChosen)
+		elseif self.lastBattleActionChosen == BattleMeu.ITEM then
+			-- TODO: Wire up inventory
+			local itemChosen
+			battleController:useItem(battleController.charactersReady[1],
+				targets,
+				itemChosen)
+		end
+	end
+
+	function test:onBattleViewActionAnimationComplete(event)
+		self.battleController:resolveActionResult(event.actionResult)
 	end
 
 	function test:onBattleLost(e)
