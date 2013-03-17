@@ -12,6 +12,7 @@
 -- However, there are generatations who haven't. Efforts like this, through legal means,
 -- are a moral duty we must, all who are capable, devote ourselves too.
 
+require "battle.AttackTypes"
 BattleUtils = {}
 
 BattleUtils.PERFECT_HIT_RATE = 255
@@ -435,7 +436,6 @@ BattleUtils.getHit = function(isPhysicalAttack,
 								targetHasClearStatus,
 								protectedFromWound,
 								attackMissesDeathProtectedTargets,
-								attackCanBeBlockedByStamina,
 								spellUnblockable,
 								targetHasSleepStatus,
 								targetHasPetrifyStatus,
@@ -448,10 +448,12 @@ BattleUtils.getHit = function(isPhysicalAttack,
 								specialAttackType,
 								targetStamina)
 	if(isPhysicalAttack and targetHasClearStatus) then
+		--print("1")
 		return false
 	end
 	
 	if(isMagicalAttack and targetHasClearStatus) then
+		--print("2")
 		return true
 	end
 	
@@ -463,6 +465,7 @@ BattleUtils.getHit = function(isPhysicalAttack,
 	]]--
 	
 	if(protectedFromWound and attackMissesDeathProtectedTargets) then
+		--print("3")
 		return false
 	end
 	
@@ -472,6 +475,7 @@ BattleUtils.getHit = function(isPhysicalAttack,
 	If the spell is unblockable, then it always hits.
 	]]--
 	if(isMagicalAttack and spellUnblockable) then
+		--print("4")
 		return true
 	end
 	
@@ -505,48 +509,7 @@ BattleUtils.getHit = function(isPhysicalAttack,
 	you miss.
 	
 	]]--
-	
-	if(attackCanBeBlockedByStamina == false) then
-		if(targetHasSleepStatus or targetHasPetrifyStatus or targetHasFreezeStatus or targetHasStopStatus) then
-			return true
-		end
-		
-		if(isPhysicalAttack and backOfTarget) then
-			return true
-		end
-		
-		if(hitRate == BattleUtils.PERFECT_HIT_RATE) then
-			return true
-		end
-		
-		if(isPhysicalAttack and targetHasImageStatus) then
-			-- TODO: 1 in 4 chance of removing Image status
-			local result = BattleUtils.getRandomNumberFromRange(0, 3)
-			if(result == 0) then
-				return false, true
-			else
-				return false
-			end
-		end
-	end
-	
-	--[[
-	Step 5. Check to hit for attacks that can be blocked by Stamina
-	
-	Most attacks use step 4 instead of this step. Only Break, Doom, Demi,
-	Quartr, X-Zone, W Wind, Shoat, Odin, Raiden, Antlion, Snare, X-Fer, and
-	Grav Bomb use this step.
-	
-	Step 5a. Chance to hit
-	
-	1. BlockValue = (255 - MBlock * 2) + 1
-	
-	2. If BlockValue > 255 then BlockValue = 255
-	If BlockValue < 1 then BlockValue = 1
-	
-	3. If ((Hit Rate * BlockValue) / 256) > [0..99] then you hit, otherwise
-	you miss.
-	]]--
+
 	local match = false
 	if specialAttackType ~= nil then
 		local attackTypes = {AttackTypes.BREAK,
@@ -571,35 +534,98 @@ BattleUtils.getHit = function(isPhysicalAttack,
 		end
 	end
 	
-	if(match) then
-		local blockValue = math.floor((255 - magicBlock * 2) + 1)
+
+	if match == false then
+		if(targetHasSleepStatus or targetHasPetrifyStatus or targetHasFreezeStatus or targetHasStopStatus) then
+			--print("5")
+			return true
+		end
 		
-		if(blockValue > 255) then
+		if(isPhysicalAttack and backOfTarget) then
+			--print("6")
+			return true
+		end
+		
+		if(hitRate == BattleUtils.PERFECT_HIT_RATE) then
+			--print("7")
+			return true
+		end
+		
+		if(isPhysicalAttack and targetHasImageStatus) then
+			-- TODO: 1 in 4 chance of removing Image status
+			local result = BattleUtils.getRandomNumberFromRange(0, 3)
+			if(result == 0) then
+				--print("8")
+				return false, true
+			else
+				--print("9")
+				return false
+			end
+		end
+
+		local blockValue = math.floor(255 - magicBlock * 2) + 1
+		if blockValue > 255 then
 			blockValue = 255
 		end
-		
-		if(blockValue < 1) then
+		if blockValue < 1 then
 			blockValue = 1
 		end
-		
-		if(((hitRate * blockValue) / 256) > BattleUtils.getRandomNumberFromRange(0, 99)) then
-			--[[
-			Step 5b. Check if Stamina blocks
-			
-			If target's stamina >= [0..127] then the attack misses (even if it hit in
-			step 5a) otherwise, the attack hits as long as it hit in step 5a.
-			]]--
-			
-			if(targetStamina >= BattleUtils.getRandomNumberFromRange(0, 127)) then
-				return false
-			else
-				return true
-			end
+		if((hitRate * blockValue) / 256) > BattleUtils.getRandomNumberFromRange(0, 99) then
+			return true
 		else
 			return false
 		end
 	end
 	
+	--[[
+	Step 5. Check to hit for attacks that can be blocked by Stamina
+	
+	Most attacks use step 4 instead of this step. Only Break, Doom, Demi,
+	Quartr, X-Zone, W Wind, Shoat, Odin, Raiden, Antlion, Snare, X-Fer, and
+	Grav Bomb use this step.
+	
+	Step 5a. Chance to hit
+	
+	1. BlockValue = (255 - MBlock * 2) + 1
+	
+	2. If BlockValue > 255 then BlockValue = 255
+	If BlockValue < 1 then BlockValue = 1
+	
+	3. If ((Hit Rate * BlockValue) / 256) > [0..99] then you hit, otherwise
+	you miss.
+	]]--
+	
+	
+	local blockValue = math.floor((255 - magicBlock * 2) + 1)
+	
+	if(blockValue > 255) then
+		blockValue = 255
+	end
+	
+	if(blockValue < 1) then
+		blockValue = 1
+	end
+	
+	if(((hitRate * blockValue) / 256) > BattleUtils.getRandomNumberFromRange(0, 99)) then
+		--[[
+		Step 5b. Check if Stamina blocks
+		
+		If target's stamina >= [0..127] then the attack misses (even if it hit in
+		step 5a) otherwise, the attack hits as long as it hit in step 5a.
+		]]--
+		
+		if(targetStamina >= BattleUtils.getRandomNumberFromRange(0, 127)) then
+			--print("10")
+			return false
+		else
+			--print("11")
+			return true
+		end
+	else
+		--print("12")
+		return false
+	end
+	--print("13")
 	return false
 end
 

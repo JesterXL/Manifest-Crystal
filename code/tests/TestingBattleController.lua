@@ -65,6 +65,7 @@ function TestingBattleController:new()
 		local battleView = BattleView:new(characters, monsters)
 		battleView:addEventListener("onBattleViewMonsterTouched", self)
 		battleView:addEventListener("onBattleViewCharacterTouched", self)
+		battleView:addEventListener("onBattleViewActionAnimationHalfwayComplete", self)
 		battleView:addEventListener("onBattleViewActionAnimationComplete", self)
 		self.battleView = battleView
 	end
@@ -89,6 +90,9 @@ function TestingBattleController:new()
 	end
 
 	function test:onActionResult(e)
+		print("TestingBattleController::onActionResult")
+		print("targets:", e.actionResult.targets)
+		print("#targets:", table.maxn(e.actionResult.targets))
 		self.battleView:handleAction(e.actionResult)
 	end
 
@@ -96,7 +100,7 @@ function TestingBattleController:new()
 		local action = e.action
 		print("TestingBattleController::onBattleMenuActionTouched, action:" .. action)
 		self.lastBattleActionChosen = action
-		local hide = true
+		self.battleMenu.isVisible = false
 		if action == BattleMenu.ATTACK then
 			self.battleView:enableMonsterTouching(true)
 		elseif action == BattleMenu.DEFEND then
@@ -111,9 +115,13 @@ function TestingBattleController:new()
 	end
 
 	function test:onBattleViewMonsterTouched(event)
+		print("test::onBattleViewMonsterTouched")
 		self.battleView:enableMonsterTouching(false)
 		self.battleView:enableCharacterTouching(false)
+		assert(event.monster, "monster cannot be nil")
 		local targets = {event.monster}
+		assert(targets, "targets cannot be nil")
+		assert(#targets, "targets cannot be empty")
 		local battleController = self.battleController
 		if self.lastBattleActionChosen == BattleMenu.ATTACK then
 			print(targets)
@@ -131,8 +139,12 @@ function TestingBattleController:new()
 		end
 	end
 
-	function test:onBattleViewActionAnimationComplete(event)
+	function test:onBattleViewActionAnimationHalfwayComplete(event)
 		self.battleController:resolveActionResult(event.actionResult)
+	end
+
+	function test:onBattleViewActionAnimationComplete(event)
+		self.battleController:resume()
 	end
 
 	function test:onBattleLost(e)

@@ -5,6 +5,8 @@ function MonsterSprite:new()
 	sprite:setFillColor(255, 0, 0, 150)
 	sprite.monster = nil
 	sprite.enabled = false
+	sprite.originalX = 0
+	sprite.originalY = 0
 
 	function sprite:touch(event)
 		if event.phase == "ended" then

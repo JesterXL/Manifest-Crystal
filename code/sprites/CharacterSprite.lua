@@ -5,6 +5,8 @@ function CharacterSprite:new()
 	character:setFillColor(0, 255, 0, 150)
 	character.character = nil
 	character.enabled = false
+	character.originalX = 0
+	character.originalY = 0
 
 	function character:touch(event)
 		if event.phase == "ended" then

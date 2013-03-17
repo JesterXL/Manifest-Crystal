@@ -108,11 +108,11 @@ function BattleController:new(characters, monsters)
 		table.remove(self.battleResults, i)
 
 		if actionResult.attacker.classType == "MonsterVO" then
-			self:resume()
+			--self:resume()
 		else
 			i = table.indexOf(self.charactersReady, actionResult.attacker)
 			table.remove(self.charactersReady, i)
-			self:resume()
+			--self:resume()
 		end
 	end
 
@@ -247,6 +247,8 @@ function BattleController:new(characters, monsters)
 			end
 		end
 		local damages = {damage}
+		assert(targets, "targets cannot be nil")
+		assert(#targets, "targets cannot be empty")
 		self:onBattleResults(attacker, targets, attackType, hit, criticalHit, damages)
 	end
 
@@ -328,6 +330,7 @@ function BattleController:new(characters, monsters)
 		print("it's a " .. character.classType)
 		if character.classType == "MonsterVO" then
 			local monsterTarget = self:getRandomCharacterForMonster()
+			assert(monsterTarget, "monsterTarget cannot be nil")
 			if monsterTarget then
 				local isPhysicalAttack = true
 				local isMagicalAttack = false
@@ -406,7 +409,7 @@ function BattleController:new(characters, monsters)
 				end
 				local damages = {damage}
 				self:pause()
-				self:onBattleResults(character, monsterTarget, AttackTypes.ATTACK, hit, criticalHit, damages)
+				self:onBattleResults(character, {monsterTarget}, AttackTypes.ATTACK, hit, criticalHit, damages)
 			else
 				self:onBattleResults(character, nil, AttackTypes.ATTACK, false, false, nil)
 			end
@@ -428,6 +431,8 @@ function BattleController:new(characters, monsters)
 									criticalHit,
 									damages)
 		print("BattleController::onBattleResults")
+		assert(targets, "targets cannot be nil")
+		assert(#targets, "targets canot be empty")
 		local result = ActionResultVO:new(attacker, 
 											targets,
 											attackType,
@@ -495,7 +500,8 @@ function BattleController:new(characters, monsters)
 		print("BattleController::getRandomCharacterForMonster")
 		local characters = self.characters
 		if characters and #characters > 0 then
-			local num = math.floor(#characters * math.random())
+			local num = math.floor(#characters * math.random()) + 1
+			print("num:", num)
 			return characters[num]
 		else
 			return nil
