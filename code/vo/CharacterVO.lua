@@ -4,17 +4,34 @@ CharacterVO = {}
 CharacterVO.ROW_BACK = 0
 CharacterVO.ROW_FRONT = 1
 
+-- Terra
+-- *****
+-- Vigor --------- 31
+-- Speed --------- 33
+-- Stamina ------- 28
+-- Magic Power --- 39
+-- Battle Power -- 22
+-- Defense ------- 42
+-- Evade --------- 5%
+-- Magic Defense - 33
+-- Magic Block --- 7%
+
+
+
 function CharacterVO:new()
 
 	local character = display.newGroup()
 	character.classType = "CharacterVO"
 	character.name = nil
-	character.vigor = 1
-	character.speed = 80
-	character.stamina = 1
-	character.magicPower = 1
-	character.evade = 1
-	character.magicBlock = 1
+	character.vigor = 31
+	character.speed = 33
+	character.stamina = 28
+	character.magicPower = 39
+	character.battlePower = 22
+	character.defense = 5
+	character.evade = 5
+	character.magicDefense = 33
+	character.magicBlock = 7
 	character.level = 1
 	character.magicPoints = 100
 	character.experience = 100

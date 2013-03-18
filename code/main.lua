@@ -385,48 +385,6 @@ local function testBattleView()
 	local view = BattleView:new(c, m)
 end
 
-local function testBattleUtils()
-	require "battle.BattleUtils"
-	local isPhysicalAttack = true
-	local isMagicalAttack = false
-	local targetHasClearStatus = false
-	local protectedFromWound = false
-	local attackMissesDeathProtectedTargets = false
-	local spellUnblockable = false
-	local targetHasSleepStatus = false
-	local targetHasPetrifyStatus = false
-	local targetHasFreezeStatus = false
-	local targetHasStopStatus = false
-	local backOfTarget = false
-	local hitRate = 180 -- TODO: need weapon's info, this is where hitRate comes from
-	local targetHasImageStatus = false
-	local magicBlock = 53
-	local specialAttackType = nil
-	local targetStamina = 39
-	
-	local i
-	local max = 100
-	for i=1,max do
-		local hit, removedImageStatus = BattleUtils.getHit(isPhysicalAttack,
-															isMagicalAttack,
-															targetHasClearStatus,
-															protectedFromWound,
-															attackMissesDeathProtectedTargets,
-															spellUnblockable,
-															targetHasSleepStatus,
-															targetHasPetrifyStatus,
-															targetHasFreezeStatus,
-															targetHasStopStatus,
-															backOfTarget,
-															hitRate,
-															targetHasImageStatus,
-															magicBlock,
-															specialAttackType,
-															targetStamina)
-		print("hit:", hit)
-	end
-end
-
 setupGlobals()
 
 --testGrid()
@@ -441,8 +399,8 @@ setupGlobals()
 
 --testBattleTimer()
 --testBattleMenu()
-testBattleController()
+--testBattleController()
 --testBattleView()
 --testBattleUtils()
 
---require "unittests"
+require "unittests"

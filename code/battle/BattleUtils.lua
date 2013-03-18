@@ -288,13 +288,13 @@ BattleUtils.getDamageModifications = function(damage,
 	local variance = BattleUtils.getRandomNumberFromRange(224, 255)
 	damage = (damage * variance / 256) + 1
 	
-	-- defense modification
-	local defenseToUse 
-	if isPhysicalAttack then 
-		defenseToUse = defense
-	else 
-		defenseToUse = magicalDefense
-	end
+	-- -- defense modification
+	-- local defenseToUse 
+	-- if isPhysicalAttack then 
+	-- 	defenseToUse = defense
+	-- else 
+	-- 	defenseToUse = magicalDefense
+	-- end
 
 	damage = (damage * (255 - defense) / 256) + 1
 	
