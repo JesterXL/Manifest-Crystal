@@ -18,8 +18,6 @@ function SpriteGridView:new(spriteGrid, playerSpriteVO, tileWidth, tileHeight)
 		self.tileHeight = tileHeight
 		self.playerSpriteVO = playerSpriteVO
 
-		local startX = 0
-		local startY = 0
 		local r, c
 		for r=1,spriteGrid.rows do
 			for c=1,spriteGrid.cols do
@@ -27,10 +25,7 @@ function SpriteGridView:new(spriteGrid, playerSpriteVO, tileWidth, tileHeight)
 				if type(spriteVO) == "table" and spriteVO.classType == "SpriteVO" then
 					local sprite = self:createSprite(spriteVO)
 				end
-				startX = startX + tileWidth
 			end
-			startX = 0
-			startY = startY + tileHeight
 		end
 
 		gameLoop:addLoop(self)
@@ -96,7 +91,7 @@ function SpriteGridView:new(spriteGrid, playerSpriteVO, tileWidth, tileHeight)
 	end
 
 	function view:tick(time)
-		self:scroll()
+		--self:scroll()
 	end
 
 	function view:scroll()

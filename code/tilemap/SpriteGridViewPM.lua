@@ -57,12 +57,14 @@ function SpriteGridViewPM:new(spriteGridView)
 	end
 
 	function model:onWestButtonPressed()
+		print("SpriteGridViewPM::onWestButtonPressed")
 		self.direction = Direction.WEST
 		gameLoop:addLoop(self)
 		self.lastTick = self.TIMEOUT
 	end
 
 	function model:onWestButtonReleased()
+		print("SpriteGridViewPM::onWestButtonReleased")
 		gameLoop:removeLoop(self)
 	end
 

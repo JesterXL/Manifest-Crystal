@@ -54,8 +54,10 @@ function DebugGridView:new(grid, tileWidth, tileHeight)
 			tileColor = {255, 255, 0, 100}
 		elseif tile == TileTypes.STARTING then
 			tileColor = {0, 0, 255, 100}
+		elseif tile == nil then
+			tileColor = {255, 255, 255, 100}
 		end
-		assert(tileColor, "You have a weird tile value:", tile)
+		assert(tileColor, "Unknown TileType:", tile)
 		return tileColor
 	end
 

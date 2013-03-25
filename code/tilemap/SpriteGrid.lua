@@ -1,4 +1,5 @@
 require "tilemap.Direction"
+require "tilemap.TileTypes"
 
 SpriteGrid = {}
 
@@ -40,7 +41,7 @@ function SpriteGrid:new(grid)
 	function spriteGrid:removeSprite(sprite)
 		local map = self.grid
 		if map:getTile(sprite.currentRow, sprite.currentCol) == sprite then
-			map:setTile(sprite.currentRow, sprite.currentCol, 0)
+			map:setTile(sprite.currentRow, sprite.currentCol, TileTypes.WALKABLE)
 			local oldRow = sprite.currentRow
 			local oldCol = sprite.currentCol
 			sprite.currentRow = nil
@@ -123,7 +124,7 @@ function SpriteGrid:new(grid)
 
 	-- utility --
 	function spriteGrid:tileEmpty(row, col)
-		if self.grid:getTile(row, col) == 0 then
+		if self.grid:getTile(row, col) == TileTypes.WALKABLE then
 			return true
 		else
 			return false
@@ -139,7 +140,9 @@ function SpriteGrid:new(grid)
 
 		local tile = grid:getTile(row, col)
 		if tile == sprite then return false, "You're already in that tile" end
-		if tile == 0 or tile == nil then return true end
+		if tile == TileTypes.WALKABLE or tile == TileTypes.ACTION or tile == TileTypes.STARTING then
+			return true
+		end
 
 		return false, "Tile is not moveable:" .. tostring(tile)
 	end

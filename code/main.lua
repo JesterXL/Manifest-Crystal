@@ -18,7 +18,7 @@ local function setupGlobals()
 end
 
 function onError(e)
-	return false
+	return true
 end
 
 function isInteger(x)
@@ -32,6 +32,14 @@ function showProps(o)
 		print("key: ", key, ", value: ", value);
 	end
 	print("-- end showProps --")
+end
+
+function fireLate(func)
+	local t = {}
+	function t:timer()
+		func()
+	end
+	timer.performWithDelay(100, t)
 end
 
 function onSystemEvent(event)
@@ -88,6 +96,9 @@ local function testDebugGridView()
 	view.x = 30
 	view.y = 30
 
+	grid:setTile(4, 4, TileTypes.ACTION)
+	grid:setTile(6, 6, TileTypes.IMPASSABLE)
+
 	local t = {}
 	function t:timer(e)
 		grid:setTile(3, 3, TileTypes.ACTION)
@@ -107,10 +118,11 @@ local function testSpriteGridView()
 
 	local TILE_WIDTH = 32
 	local TILE_HEIGHT = 32
-	local ROWS = 40
-	local COLS = 40
+	local ROWS = 12
+	local COLS = 12
 
 	local grid = Grid:new(ROWS, COLS, 0)
+	grid:setTile(3, 3, TileTypes.IMPASSABLE)
 	local jxl = SpriteVO:new()
 	local cow = SpriteVO:new()
 	local spriteGrid = SpriteGrid:new(grid)
@@ -123,8 +135,10 @@ local function testSpriteGridView()
 	local mapGrid = Grid:new(ROWS, COLS, 0)
 	mapGrid:setTile(3, 3, TileTypes.IMPASSABLE)
 	local debugGridView = DebugGridView:new(mapGrid, TILE_WIDTH, TILE_HEIGHT)
+	--grid:setTile(3, 3, TileTypes.IMPASSABLE)
+	--local debugGridView = DebugGridView:new(grid, TILE_WIDTH, TILE_HEIGHT)
 	--debugGridView.x = stage.width / 2 - (TILE_WIDTH * COLS) / 2
-	debugGridView.x = 60
+	debugGridView.x = spriteGridView.x
 	debugGridView.y = spriteGridView.y
 
 	--[[
@@ -141,11 +155,53 @@ local function testSpriteGridView()
 	timer.performWithDelay(4 * 1000, later)
 	]]--
 
-	spriteGrid:addSprite(cow, 5, 5)
+	--spriteGrid:addSprite(cow, 5, 5)
 
 	require "gui.PlayerControls"
 	local button = PlayerControls:new()
-	button.isVisible = false
+	--button.isVisible = false
+
+	require "tilemap.SpriteGridViewPM"
+	local pm = SpriteGridViewPM:new(spriteGridView)
+end
+
+local function testSpriteGridViewWithMap()
+	require "tilemap.Grid"
+	require "tilemap.SpriteGrid"
+	require "tilemap.SpriteVO"
+	require "tilemap.SpriteGridView"
+	require "tilemap.DebugGridView"
+	require "tilemap.TileTypes"
+	require "tilemap.maps.MapStevensRoom"
+
+	local TILE_WIDTH = 64
+	local TILE_HEIGHT = 64
+	local ROWS = MapStevensRoom.tiles.rows
+	local COLS = MapStevensRoom.tiles.cols
+
+	local mapImage = display.newImage(MapStevensRoom.image)
+	mapImage:setReferencePoint(display.TopLeftReferencePoint)
+
+	local grid = MapStevensRoom.tiles
+	local mapGrid = grid:clone()
+	local jxl = SpriteVO:new()
+	local spriteGrid = SpriteGrid:new(grid)
+	spriteGrid:addSprite(jxl, MapStevensRoom.startRow, MapStevensRoom.startCol)
+	local spriteGridView = SpriteGridView:new(spriteGrid, jxl, TILE_WIDTH, TILE_HEIGHT, map)
+	spriteGridView.x = 60
+	spriteGridView.y = 60
+
+	
+	local debugGridView = DebugGridView:new(mapGrid, TILE_WIDTH, TILE_HEIGHT)
+	debugGridView.x = spriteGridView.x
+	debugGridView.y = spriteGridView.y
+
+	mapImage.x = debugGridView.x + MapStevensRoom.offsetX
+	mapImage.y = debugGridView.y + MapStevensRoom.offsetY
+
+	require "gui.PlayerControls"
+	local button = PlayerControls:new()
+	--button.isVisible = false
 
 	require "tilemap.SpriteGridViewPM"
 	local pm = SpriteGridViewPM:new(spriteGridView)
@@ -471,6 +527,7 @@ setupGlobals()
 --testSpriteGrid()
 --testDebugGridView()
 --testSpriteGridView()
+fireLate(testSpriteGridViewWithMap)
 
 --testRadials()
 --testRadialMenu()
@@ -483,6 +540,6 @@ setupGlobals()
 --testBattleView()
 --testBattleUtils()
 
-testStevenSpriteSheet()
+--testStevenSpriteSheet()
 
 --require "unittests"
