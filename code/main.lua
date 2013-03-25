@@ -13,6 +13,12 @@ local function setupGlobals()
 	
 	
 	_G.platform = system.getInfo("platformName")
+
+	Runtime:addEventListener("unhandledError", onError)
+end
+
+function onError(e)
+	return false
 end
 
 function isInteger(x)
@@ -77,7 +83,7 @@ end
 local function testDebugGridView()
 	require "tilemap.Grid"
 	require "tilemap.DebugGridView"
-	local grid = Grid:new(10, 10, 0)
+	local grid = Grid:new(7, 8, 0)
 	local view = DebugGridView:new(grid, 32, 32)
 	view.x = 30
 	view.y = 30
@@ -389,7 +395,7 @@ setupGlobals()
 
 --testGrid()
 --testSpriteGrid()
---testDebugGridView()
+testDebugGridView()
 --testSpriteGridView()
 
 --testRadials()
@@ -403,4 +409,4 @@ setupGlobals()
 --testBattleView()
 --testBattleUtils()
 
-require "unittests"
+--require "unittests"

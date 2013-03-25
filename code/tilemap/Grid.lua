@@ -30,7 +30,7 @@ function Grid:new(rows, cols, initialValue)
 		assert(row, "row can't be nil")
 		assert(col, "col can't be nil")
 		assert(row <= self.rows and row > 0, "Row out of range")
-		assert(col <= self.rows and col > 0, "Col out of range")
+		assert(col <= self.cols and col > 0, "Col out of range")
 	    return self.tiles[row][col]
 	end
 	
