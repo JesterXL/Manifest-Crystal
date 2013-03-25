@@ -391,11 +391,85 @@ local function testBattleView()
 	local view = BattleView:new(c, m)
 end
 
+local function testStevenSpriteSheet()
+	local rect = display.newRect(0, 0, stage.width, stage.height)
+	rect:setFillColor(255, 255, 255)
+	local sheet = graphics.newImageSheet("assets/spritesheets/steven-sprite-sheet.png", {width=24, height=24, numFrames=17})
+	local sequenceData = 
+	{
+		{
+			name="standSouth",
+			start=17,
+			count=1
+		},
+		{
+			name="walkEast",
+			start=1,
+			count=4,
+			time=1000
+		},
+		{
+			name="standNorth",
+			start=5,
+			count=1
+		},
+		{
+			name="walkNorth",
+			frames={5, 6, 5, 7},
+			time=1000
+		},
+		{
+			name="laugh",
+			start=9,
+			count=2,
+			time=500
+		},
+		{
+			name="defend",
+			start=8,
+			count=1
+		},
+		{
+			name="cheer",
+			frames={11,1},
+			time=500
+		},
+		{
+			name="hit",
+			start=12,
+			count=1
+		},
+		{
+			name="hurt",
+			start=13,
+			count=1
+		},
+		{
+			name="swoon",
+			start=14,
+			count=1
+		},
+		{
+			name="walkSouth",
+			frames={17,15,17,16},
+			time=1000
+		}
+	}
+
+	local sprite = display.newSprite(sheet, sequenceData)
+	sprite:setSequence("standSouth")
+	sprite:play()
+	sprite.x = 60
+	sprite.y = 60
+	sprite.xScale = 4
+	sprite.yScale = 4
+end
+
 setupGlobals()
 
 --testGrid()
 --testSpriteGrid()
-testDebugGridView()
+--testDebugGridView()
 --testSpriteGridView()
 
 --testRadials()
@@ -408,5 +482,7 @@ testDebugGridView()
 --testBattleController()
 --testBattleView()
 --testBattleUtils()
+
+testStevenSpriteSheet()
 
 --require "unittests"
