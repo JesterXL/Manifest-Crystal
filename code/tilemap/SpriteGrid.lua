@@ -1,5 +1,6 @@
 require "tilemap.Direction"
 require "tilemap.TileTypes"
+require "tilemap.Grid"
 
 SpriteGrid = {}
 
@@ -7,6 +8,7 @@ function SpriteGrid:new(grid)
 
 	local spriteGrid = display.newGroup()
 	spriteGrid.grid = nil
+	spriteGrid.sprites = nil
 
 	-- Proxy --
 	spriteGrid.rows = nil
@@ -16,10 +18,11 @@ function SpriteGrid:new(grid)
 		self.grid = grid
 		self.rows = grid.rows
 		self.cols = grid.cols
+		self.sprites = Grid:new(self.rows, self.cols, TileTypes.WALKABLE)
 	end
 
 	function spriteGrid:getSprite(row, col)
-		local value = self.grid:getTile(row, col)
+		local value = self.sprites:getTile(row, col)
 		if type(value) == "table" and value.classType == "SpriteVO" then
 			return value
 		else
@@ -31,7 +34,7 @@ function SpriteGrid:new(grid)
 	function spriteGrid:addSprite(spriteVO, row, col)
 		assert(spriteVO, "null SpriteVO not allowed")
 		assert(self:canMoveToTile(sprite, row, col), "Can't move to that tile.")
-		self.grid:setTile(row, col, spriteVO)
+		self.sprites:setTile(row, col, spriteVO)
 		spriteVO.currentRow = row
 		spriteVO.currentCol = col
 		self:dispatchEvent({name="onAdded", target=self, row=row, col=col, sprite=spriteVO})
@@ -39,7 +42,7 @@ function SpriteGrid:new(grid)
 	end
 
 	function spriteGrid:removeSprite(sprite)
-		local map = self.grid
+		local map = self.sprites
 		if map:getTile(sprite.currentRow, sprite.currentCol) == sprite then
 			map:setTile(sprite.currentRow, sprite.currentCol, TileTypes.WALKABLE)
 			local oldRow = sprite.currentRow
@@ -56,7 +59,7 @@ function SpriteGrid:new(grid)
 	function spriteGrid:moveSprite(sprite, row, col)
 		if sprite.moving == true then return true, "Sprite is moving" end
 		
-		local grid = self.grid
+		local grid = self.sprites
 		local direction
 		local oldRow = sprite.currentRow
 		local oldCol = sprite.currentCol
@@ -76,9 +79,9 @@ function SpriteGrid:new(grid)
 		if canMoveThere == false  then return false, whyNot end
 
 		local spriteAtPos = grid:getTile(row, col)
-		if spriteAtPos ~= 0 and spriteAtPos == sprite  then return false end
+		if spriteAtPos ~= TileTypes.WALKABLE and spriteAtPos == sprite  then return false end
 		if grid:getTile(oldRow, oldCol) == sprite then
-			grid:setTile(oldRow, oldCol, nil)
+			grid:setTile(oldRow, oldCol, TileTypes.WALKABLE)
 		end
 
 		sprite.currentRow = row
@@ -103,7 +106,7 @@ function SpriteGrid:new(grid)
 		elseif direction == Direction.WEST then
 			targetCol = targetCol - 1
 		end
-		return grid:getTile(targetRow, targetCol)	
+		return self.sprites:getTile(targetRow, targetCol)	
 	end
 
 	function spriteGrid:moveNorth(sprite)
@@ -124,7 +127,7 @@ function SpriteGrid:new(grid)
 
 	-- utility --
 	function spriteGrid:tileEmpty(row, col)
-		if self.grid:getTile(row, col) == TileTypes.WALKABLE then
+		if self.sprites:getTile(row, col) == TileTypes.WALKABLE then
 			return true
 		else
 			return false
@@ -139,7 +142,9 @@ function SpriteGrid:new(grid)
 		if col > grid.cols then return false, "Col too big" end
 
 		local tile = grid:getTile(row, col)
-		if tile == sprite then return false, "You're already in that tile" end
+		local spriteTile = self.sprites:getTile(row, col)
+		if spriteTile == sprite then return false, "You're already in that tile" end
+		if type(spriteTile) == "table" and spriteTile.classType == "SpriteVO" then return false, "Another sprite is there." end
 		if tile == TileTypes.WALKABLE or tile == TileTypes.ACTION or tile == TileTypes.STARTING then
 			return true
 		end
